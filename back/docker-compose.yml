@@ -1,0 +1,52 @@
+version: '3'
+services:
+  back:
+    build: .
+    image: devops/hubr-back:latest
+    container_name: hubr-back
+    restart: always
+    networks:
+      - hubr_proxy
+    ports:
+      - "3000:8080"
+    environment:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - NODE_ENV: 'development'
+    expose:
+      - 3000
+    depends_on:
+      - mariadb
+      - adminer
+
+  mariadb:
+    image: mariadb
+    restart: always
+    networks:
+      - hubr_proxy
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hubrdb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - hubr_proxy
+    ports:
+      - 9090:8080
+    depends_on:
+      - mariadb
+
+networks:
+  hubr_proxy:
+    external:
+      name: hubr_proxy
+  default:
+    driver: bridge
